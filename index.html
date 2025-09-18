@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M2O-AVC: Many-to-One Token Based Accent and Voice Conversion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #ffffff;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .authors {
+            text-align: center;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .institution {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .abstract {
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+        }
+
+        .abstract h2 {
+            margin-top: 0;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+        }
+
+        .sample {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+        }
+
+        .sample h3 {
+            margin-top: 0;
+            color: #4CAF50;
+            font-size: 16px;
+        }
+
+        .text-content {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            font-style: italic;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .audio-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .audio-item {
+            text-align: center;
+        }
+
+        .audio-item h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .source { color: #e74c3c; }
+        .converted { color: #27ae60; }
+
+        audio {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .placeholder {
+            background-color: #e9e9e9;
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .audio-pair {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>M2O-AVC: Many-to-One Token Based Accent and Voice Conversion</h1>
+    <!-- <div class="authors">Author1, Author2, Author3</div> -->
+    <div class="institution">Speech Information Processing Lab, Indian Institute of Technology, Hyderabad</div>
+
+    <div class="abstract">
+        <h2>Abstract</h2>
+        <p>We propose a novel reference-free accent and voice conversion (AVC) framework that achieves high-quality accent transfer with minimal training data while preserving source speaker linguistic content. Unlike neural machine translation or autoregressive native token-to-target token conversion methods followed by token-to-mel prediction, which risk content loss and model complexity, our approach uses deduplicated tokens to eliminate source speech rhythm and directly predicts target accented speech waveforms. Our framework leverages VITS2 (flow-based) architecture for token-to-speech waveform prediction, capable of converting diverse accents including Indian regional variants, Arabic, and Vietnamese accents to US English accented speech, and notably, the challenging reverse direction of converting Western accents (US and British) to Indian English accented speech—a rarely addressed scenario in accent conversion research. We achieve an accent similarity score of 4.6/5.0, significantly surpassing unconverted speech (1.5/5.0), representing a 3.1-point improvement.</p>
+    </div>
+
+    <div class="section">
+        <h2>Native to Foreign Accent Conversion</h2>
+
+        <div class="sample">
+            <h3>Tamil → US English</h3>
+            <div class="text-content">"The servant was already flattered with all the gifts, and he was full of joy, Sir, I forgive you. You have not only expressed your regrets, but also honoured me with utmost respect."</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">Tamil Accented</h4>
+                    <audio controls style="width: 100%;"><source src="in_us/tamil_orig/train_tamil_male_00069.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">US English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="in_us/tamil_conv/train_tamil_male_00069.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="sample">
+            <h3>Tamil → US English</h3>
+            <div class="text-content">"This was the opportunity the swindler was seeking, and he at once touched the feet of the sage for blessings, O Guruji, please accept me as your disciple. I will do whatever you ask me to do."</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">Tamil Accented</h4>
+                    <audio controls style="width: 100%;"><source src="../results_in_to_lj/ground/train_tamil_male_00104.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">US English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="../results_in_to_lj/train_tamil_male_00104.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="sample">
+            <h3>Manipuri → US English</h3>
+            <div class="text-content">"stood at some distance with bated breath ."</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">Manipuri Accented</h4>
+                    <audio controls style="width: 100%;"><source src="in_us/manipuri_orig/train_manipurimale_00700.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">US English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="in_us/manipuri_conv/train_manipurimale_00700.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="sample">
+            <h3>Manipuri → US English</h3>
+            <div class="text-content">"the Tapta was a strong ferocious and intelligent animal .."</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">Manipuri Accented</h4>
+                    <audio controls style="width: 100%;"><source src="in_us/manipuri_orig/train_manipurimale_01009.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">US English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="in_us/manipuri_conv/train_manipurimale_01009.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="sample">
+            <h3>Gujarati → US English</h3>
+            <div class="text-content">"For the, twentieth time, that evening the two men shook hands."</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">Gujarati Accented</h4>
+                    <audio controls style="width: 100%;"><source src="in_us/guj_orig/train_gujaratifemale_00002.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">US English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="in_us/guj_conv/train_gujaratifemale_00002.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="sample">
+            <h3>Gujarati → US English</h3>
+            <div class="text-content">"Not at this particular case, Tom, apologized Whittemore."</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">Gujarati Accented</h4>
+                    <audio controls style="width: 100%;"><source src="in_us/guj_orig/train_gujaratifemale_00001.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">US English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="in_us/guj_conv/train_gujaratifemale_00001.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <!-- <div class="sample">
+            <h3>Arabic → US English</h3>
+            <div class="text-content">"International cooperation is essential for solving global challenges."</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">Arabic Accented</h4>
+                    <audio controls style="width: 100%;"><source src="../results_in_to_lj/ground/train_tamil_male_00159.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">US English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="../results_in_to_lj/train_tamil_male_00159.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="sample">
+            <h3>Arabic → US English</h3>
+            <div class="text-content">"Cultural exchange promotes understanding and friendship between nations."</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">Arabic Accented</h4>
+                    <audio controls style="width: 100%;"><source src="../results_in_to_lj/ground/train_tamil_male_00343.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">US English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="../results_in_to_lj/train_tamil_male_00343.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="sample">
+            <h3>Vietnamese → US English</h3>
+            <div class="text-content">"Environmental protection requires collective effort from all communities."</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">Vietnamese Accented</h4>
+                    <audio controls style="width: 100%;"><source src="../results_in_to_lj/ground/train_manipurimale_01527.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">US English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="../results_in_to_lj/train_manipurimale_01527.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="sample">
+            <h3>Vietnamese → US English</h3>
+            <div class="text-content">"Scientific research opens new pathways to knowledge and discovery."</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">Vietnamese Accented</h4>
+                    <audio controls style="width: 100%;"><source src="../results_in_to_lj/ground/train_manipurimale_01805.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">US English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="../results_in_to_lj/train_manipurimale_01805.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+    <div class="section">
+        <h2>Foreign to Native Accent Conversion</h2>
+
+        <div class="sample">
+            <h3>US → Gujarati Indian English</h3>
+            <div class="text-content">"printing, in the only sense with which we are at present concerned, differs from most if not from all the arts and crafts represented in the exhibition"</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">US English</h4>
+                    <audio controls style="width: 100%;"><source src="us_to in/us_orig/LJ001-0001.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">Gujarati Indian English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="us_to in/us_conv/LJ001-0001.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="sample">
+            <h3>US → Gujarati Indian English</h3>
+            <div class="text-content">"the earliest book printed with movable types, the gutenberg, or "forty-two line bible" of about fourteen fifty-five,"</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">US English</h4>
+                    <audio controls style="width: 100%;"><source src="us_to in/us_orig/LJ001-0007.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">Gujarati Indian English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="us_to in/us_conv/LJ001-0007.wav" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="sample">
+            <h3>British Male → Gujarati Indian English</h3>
+            <div class="text-content">"It is the fifth of a series of Manuals designed to meet the public demand for a simple exposition of Theosophical teachings."</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">British Male</h4>
+                    <audio controls style="width: 100%;"><source src="us_to in/britain_male_orig/astralplane_01_leadbeater_0001.flac" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">Gujarati Indian English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="us_to in/britain_male_conv/astralplane_01_leadbeater_0001.flac" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="sample">
+            <h3>British Male → Gujarati Indian English</h3>
+            <div class="text-content">"Perhaps among those who in these little books catch their first glimpse of its teachings,
+
+                "</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">British Male</h4>
+                    <audio controls style="width: 100%;"><source src="us_to in/britain_male_orig/astralplane_01_leadbeater_0007.flac" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">Gujarati Indian English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="us_to in/britain_male_conv/astralplane_01_leadbeater_0007.flac" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="sample">
+            <h3>British Female → Gujarati Indian English</h3>
+            <div class="text-content">"At such times the aunt always wrinkled up her pleasant little forehead into a V upside down,
+                "</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">British Female</h4>
+                    <audio controls style="width: 100%;"><source src="us_to in/britan_female_orig/auntcretesemancipation_01_hill_0036.flac" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">Gujarati Indian English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="us_to in/britain_female_conv/auntcretesemancipation_01_hill_0036.flac" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="sample">
+            <h3>British Female → Gujarati Indian English</h3>
+            <div class="text-content">"The aunt always felt secretly that they somehow blamed her for being of that type"</div>
+            <div class="audio-pair">
+                <div class="audio-item">
+                    <h4 class="source">British Female</h4>
+                    <audio controls style="width: 100%;"><source src="us_to in/britan_female_orig/auntcretesemancipation_01_hill_0031.flac" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+                <div class="audio-item">
+                    <h4 class="converted">Gujarati Indian English Converted</h4>
+                    <audio controls style="width: 100%;"><source src="us_to in/britain_female_conv/auntcretesemancipation_01_hill_0031.flac" type="audio/wav">Your browser does not support the audio element.</audio>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to replace placeholder with actual audio element
+        function loadAudio(filename, containerId) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = `<audio controls style="width: 100%;"><source src="${filename}" type="audio/wav">Your browser does not support the audio element.</audio>`;
+            }
+        }
+
+        // Add click functionality to placeholders for testing
+        document.addEventListener('DOMContentLoaded', function() {
+            const placeholders = document.querySelectorAll('.placeholder');
+            placeholders.forEach(placeholder => {
+                placeholder.style.cursor = 'pointer';
+                placeholder.addEventListener('click', function() {
+                    const filename = this.textContent;
+                    // In a real scenario, you would check if the file exists
+                    this.innerHTML = `<audio controls style="width: 100%;"><source src="${filename}" type="audio/wav">Audio file: ${filename}</audio>`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
